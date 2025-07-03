@@ -1,0 +1,733 @@
+{
+    "name": "uv-vscode-extension",
+    "displayName": "UV - Python Package Manager",
+    "description": "VS Code extension for uv - the extremely fast Python package manager",
+    "version": "0.1.0",
+    "publisher": "MouradGHAFIRI",
+    "license": "MIT",
+    "author": {
+        "name": "Mourad GHAFIRI"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/mourad-ghafiri/uv-vscode-extension.git"
+    },
+    "engines": {
+        "vscode": "^1.85.0"
+    },
+    "categories": [],
+    "keywords": [
+        "python",
+        "uv",
+        "package manager",
+        "dependency management",
+        "virtual environment"
+    ],
+    "icon": "resources/icon.png",
+    "galleryBanner": {
+        "color": "#1e1e1e",
+        "theme": "dark"
+    },
+    "activationEvents": [
+        "onStartupFinished",
+        "onCommand:uv.init",
+        "onCommand:uv.add",
+        "onCommand:uv.remove",
+        "onCommand:uv.sync",
+        "onCommand:uv.lock",
+        "onCommand:uv.run",
+        "onCommand:uv.tree",
+        "onCommand:uv.venv",
+        "onCommand:uv.python",
+        "onCommand:uv.pip",
+        "onCommand:uv.build",
+        "onCommand:uv.publish",
+        "onCommand:uv.cache",
+        "onCommand:uv.version",
+        "onCommand:uv.export",
+        "onCommand:uv.tool",
+        "onCommand:uv.self",
+        "onCommand:uv.help",
+        "onView:uv.dependencies",
+        "onView:uv.environments",
+        "onView:uv.cache",
+        "workspaceContains:**/pyproject.toml",
+        "workspaceContains:**/uv.toml"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "uv.init",
+                "title": "UV: Initialize Project",
+                "category": "UV",
+                "icon": "$(new-folder)"
+            },
+            {
+                "command": "uv.run",
+                "title": "UV: Run Command (Interactive)",
+                "category": "UV",
+                "icon": "$(play)"
+            },
+            {
+                "command": "uv.add",
+                "title": "UV: Manage Dependencies",
+                "category": "UV",
+                "icon": "$(package)"
+            },
+            {
+                "command": "uv.remove",
+                "title": "UV: Manage Dependencies",
+                "category": "UV",
+                "icon": "$(package)"
+            },
+            {
+                "command": "uv.sync",
+                "title": "UV: Sync Environment",
+                "category": "UV",
+                "icon": "$(sync)"
+            },
+            {
+                "command": "uv.lock",
+                "title": "UV: Update Lockfile",
+                "category": "UV",
+                "icon": "$(lock)"
+            },
+            {
+                "command": "uv.runFile",
+                "title": "Run with UV",
+                "category": "UV",
+                "icon": "$(play)"
+            },
+            {
+                "command": "uv.tree",
+                "title": "UV: Show Dependency Tree",
+                "category": "UV",
+                "icon": "$(list-tree)"
+            },
+            {
+                "command": "uv.venv",
+                "title": "UV: Create Virtual Environment",
+                "category": "UV",
+                "icon": "$(server-environment)"
+            },
+            {
+                "command": "uv.python",
+                "title": "UV: Manage Python Versions",
+                "category": "UV",
+                "icon": "$(python)"
+            },
+            {
+                "command": "uv.pip",
+                "title": "UV: Pip Interface",
+                "category": "UV",
+                "icon": "$(package)"
+            },
+            {
+                "command": "uv.build",
+                "title": "UV: Build Package",
+                "category": "UV",
+                "icon": "$(build)"
+            },
+            {
+                "command": "uv.publish",
+                "title": "UV: Publish Package",
+                "category": "UV",
+                "icon": "$(cloud-upload)"
+            },
+            {
+                "command": "uv.cache",
+                "title": "UV: Manage Cache",
+                "category": "UV",
+                "icon": "$(database)"
+            },
+            {
+                "command": "uv.version",
+                "title": "UV: Manage Version",
+                "category": "UV",
+                "icon": "$(tag)"
+            },
+            {
+                "command": "uv.export",
+                "title": "UV: Export Lockfile",
+                "category": "UV",
+                "icon": "$(export)"
+            },
+            {
+                "command": "uv.tool",
+                "title": "UV: Run Tools",
+                "category": "UV",
+                "icon": "$(tools)"
+            },
+            {
+                "command": "uv.self",
+                "title": "UV: Self Management",
+                "category": "UV",
+                "icon": "$(gear)"
+            },
+            {
+                "command": "uv.help",
+                "title": "UV: Show Help",
+                "category": "UV",
+                "icon": "$(question)"
+            },
+            {
+                "command": "uv.showQuickActions",
+                "title": "UV: Quick Actions",
+                "category": "UV",
+                "icon": "$(list-flat)"
+            },
+            {
+                "command": "uv.activateVenv",
+                "title": "UV: Activate Virtual Environment",
+                "category": "UV",
+                "icon": "$(server-environment)"
+            },
+            {
+                "command": "uv.deactivateVenv",
+                "title": "UV: Deactivate Virtual Environment",
+                "category": "UV",
+                "icon": "$(server-environment)"
+            },
+            {
+                "command": "uv.refreshDependencies",
+                "title": "Refresh Dependencies",
+                "category": "UV"
+            },
+            {
+                "command": "uv.refreshEnvironments",
+                "title": "Refresh Environments",
+                "category": "UV"
+            },
+            {
+                "command": "uv.refreshCache",
+                "title": "Refresh Cache",
+                "category": "UV"
+            },
+            {
+                "command": "uv.showDependencyDetails",
+                "title": "UV: Show Dependency Details",
+                "category": "UV",
+                "icon": "$(info)"
+            },
+            {
+                "command": "uv.updateDependency",
+                "title": "UV: Update Dependency",
+                "category": "UV",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "uv.bulkAdd",
+                "title": "UV: Bulk Add Dependencies",
+                "category": "UV",
+                "icon": "$(add)"
+            },
+            {
+                "command": "uv.manageTests",
+                "title": "Manage Tests",
+                "category": "UV",
+                "icon": "$(beaker)"
+            },
+            {
+                "command": "uv.runTest",
+                "title": "UV: Run Test File",
+                "category": "UV",
+                "icon": "$(play)"
+            },
+            {
+                "command": "uv.runTestMethod",
+                "title": "UV: Run Test Method",
+                "category": "UV",
+                "icon": "$(play)"
+            },
+            {
+                "command": "uv.installSpecificPythonVersion",
+                "title": "UV: Install Specific Python Version",
+                "category": "UV",
+                "icon": "$(python)"
+            },
+            {
+                "command": "uv.showToolchainInfo",
+                "title": "UV: Show Toolchain Info",
+                "category": "UV",
+                "icon": "$(info)"
+            },
+            {
+                "command": "uv.toggleHttpServer",
+                "title": "UV: Run HTTP Server",
+                "category": "UV",
+                "icon": "$(globe)"
+            }
+        ],
+        "views": {
+            "explorer": [
+                {
+                    "id": "uv.dependencies",
+                    "name": "UV Dependencies",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "id": "uv.environments",
+                    "name": "UV Environments",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "id": "uv.cache",
+                    "name": "UV Cache",
+                    "when": "workspaceHasPythonProject"
+                }
+            ],
+            "uv": [
+                {
+                    "id": "uv.dependencies",
+                    "name": "Dependencies",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "id": "uv.environments",
+                    "name": "Environments",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "id": "uv.cache",
+                    "name": "Cache",
+                    "when": "workspaceHasPythonProject"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "uv",
+                    "title": "UV",
+                    "icon": "resources/uv-icon.svg"
+                }
+            ]
+        },
+        "menus": {
+            "view/title": [
+                {
+                    "command": "uv.refreshDependencies",
+                    "when": "view == uv.dependencies",
+                    "group": "navigation"
+                },
+                {
+                    "command": "uv.refreshEnvironments",
+                    "when": "view == uv.environments",
+                    "group": "navigation"
+                },
+                {
+                    "command": "uv.refreshCache",
+                    "when": "view == uv.cache",
+                    "group": "navigation"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "uv.add",
+                    "when": "view == uv.dependencies",
+                    "group": "uv.deps@1"
+                },
+                {
+                    "command": "uv.bulkAdd",
+                    "when": "view == uv.dependencies",
+                    "group": "uv.deps@2"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "uv.runFile",
+                    "group": "uv@1",
+                    "when": "resourceExtname == .py"
+                },
+                {
+                    "submenu": "uv.contextMenu",
+                    "group": "uv@2",
+                    "when": "workspaceHasPythonProject"
+                }
+            ],
+            "resourceGroup/context": [
+                {
+                    "submenu": "uv.contextMenu",
+                    "group": "uv@1",
+                    "when": "workspaceHasPythonProject"
+                }
+            ],
+            "file/context": [
+                {
+                    "command": "uv.runFile",
+                    "group": "uv@1",
+                    "when": "resourceExtname == .py"
+                },
+                {
+                    "command": "uv.runTest",
+                    "group": "uv@1",
+                    "when": "resourceFilename =~ /test_.*\\.py$|.*_test\\.py$/"
+                },
+                {
+                    "command": "uv.manageTests",
+                    "group": "uv@2",
+                    "when": "resourceFilename =~ /test_.*\\.py$|.*_test\\.py$/"
+                },
+                {
+                    "submenu": "uv.fileContextMenu",
+                    "group": "uv@2",
+                    "when": "resourceExtname == .py"
+                },
+                {
+                    "submenu": "uv.projectFileContextMenu",
+                    "group": "uv@1",
+                    "when": "resourceFilename == pyproject.toml || resourceFilename == uv.toml"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "uv.runFile",
+                    "group": "uv@1",
+                    "when": "resourceExtname == .py"
+                },
+                {
+                    "command": "uv.runTest",
+                    "group": "uv@1",
+                    "when": "resourceFilename =~ /test_.*\\.py$|.*_test\\.py$/"
+                },
+                {
+                    "command": "uv.runTestMethod",
+                    "group": "uv@1",
+                    "when": "resourceFilename =~ /test_.*\\.py$|.*_test\\.py$/"
+                }
+            ],
+            "uv.contextMenu": [
+                {
+                    "command": "uv.init",
+                    "when": "!workspaceHasPythonProject",
+                    "group": "uv.project@1"
+                },
+                {
+                    "command": "uv.sync",
+                    "when": "workspaceHasPythonProject",
+                    "group": "uv.project@1"
+                },
+                {
+                    "command": "uv.lock",
+                    "when": "workspaceHasPythonProject",
+                    "group": "uv.project@2"
+                },
+                {
+                    "command": "uv.tree",
+                    "when": "workspaceHasPythonProject",
+                    "group": "uv.project@3"
+                },
+                {
+                    "submenu": "uv.dependencies",
+                    "when": "workspaceHasPythonProject",
+                    "group": "uv.dependencies@1"
+                },
+                {
+                    "submenu": "uv.environments",
+                    "when": "workspaceHasPythonProject",
+                    "group": "uv.environments@1"
+                },
+                {
+                    "submenu": "uv.python",
+                    "group": "uv.python@1"
+                },
+                {
+                    "submenu": "uv.tools",
+                    "when": "workspaceHasPythonProject",
+                    "group": "uv.tools@1"
+                },
+                {
+                    "submenu": "uv.package",
+                    "when": "workspaceHasPythonProject",
+                    "group": "uv.package@1"
+                },
+                {
+                    "submenu": "uv.utilities",
+                    "group": "uv.utilities@1"
+                },
+                {
+                    "submenu": "uv.tests",
+                    "when": "workspaceHasPythonProject",
+                    "group": "uv.tests@1"
+                }
+            ],
+            "uv.dependencies": [
+                {
+                    "command": "uv.add",
+                    "group": "uv.deps@1"
+                },
+                {
+                    "command": "uv.remove",
+                    "group": "uv.deps@2"
+                }
+            ],
+            "uv.environments": [
+                {
+                    "command": "uv.venv",
+                    "group": "uv.env@1"
+                },
+                {
+                    "command": "uv.run",
+                    "group": "uv.env@2"
+                }
+            ],
+            "uv.python": [
+                {
+                    "command": "uv.python",
+                    "group": "uv.py@1"
+                },
+                {
+                    "command": "uv.pip",
+                    "group": "uv.py@2"
+                }
+            ],
+            "uv.tools": [
+                {
+                    "command": "uv.tool",
+                    "group": "uv.tool@1"
+                },
+                {
+                    "command": "uv.export",
+                    "group": "uv.tool@2"
+                }
+            ],
+            "uv.package": [
+                {
+                    "command": "uv.build",
+                    "group": "uv.pkg@1"
+                },
+                {
+                    "command": "uv.publish",
+                    "group": "uv.pkg@2"
+                },
+                {
+                    "command": "uv.version",
+                    "group": "uv.pkg@3"
+                }
+            ],
+            "uv.utilities": [
+                {
+                    "command": "uv.cache",
+                    "group": "uv.util@1"
+                },
+                {
+                    "command": "uv.self",
+                    "group": "uv.util@2"
+                },
+                {
+                    "command": "uv.help",
+                    "group": "uv.util@3"
+                }
+            ],
+            "uv.tests": [
+                {
+                    "command": "uv.runTest",
+                    "group": "uv.test@1"
+                },
+                {
+                    "command": "uv.runTestMethod",
+                    "group": "uv.test@2"
+                },
+                {
+                    "command": "uv.manageTests",
+                    "group": "uv.test@3"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "uv.init",
+                    "when": "!workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.sync",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.add",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.remove",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.tree",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.venv",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.run",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.runFile",
+                    "when": "resourceExtname == .py"
+                },
+                {
+                    "command": "uv.python"
+                },
+                {
+                    "command": "uv.pip"
+                },
+                {
+                    "command": "uv.build",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.publish",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.cache"
+                },
+                {
+                    "command": "uv.version",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.export",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.tool",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.self"
+                },
+                {
+                    "command": "uv.help"
+                },
+                {
+                    "command": "uv.manageTests",
+                    "when": "workspaceHasPythonProject"
+                },
+                {
+                    "command": "uv.runTest",
+                    "when": "resourceFilename =~ /test_.*\\.py$|.*_test\\.py$/"
+                },
+                {
+                    "command": "uv.runTestMethod",
+                    "when": "resourceFilename =~ /test_.*\\.py$|.*_test\\.py$/"
+                },
+                {
+                    "command": "uv.installSpecificPythonVersion"
+                },
+                {
+                    "command": "uv.toggleHttpServer"
+                }
+            ]
+        },
+        "submenus": [
+            {
+                "id": "uv.contextMenu",
+                "label": "UV"
+            },
+            {
+                "id": "uv.fileContextMenu",
+                "label": "UV"
+            },
+            {
+                "id": "uv.projectFileContextMenu",
+                "label": "UV"
+            },
+            {
+                "id": "uv.dependencies",
+                "label": "Dependencies"
+            },
+            {
+                "id": "uv.environments",
+                "label": "Environments"
+            },
+            {
+                "id": "uv.python",
+                "label": "Python"
+            },
+            {
+                "id": "uv.tools",
+                "label": "Tools"
+            },
+            {
+                "id": "uv.package",
+                "label": "Package"
+            },
+            {
+                "id": "uv.utilities",
+                "label": "Utilities"
+            },
+            {
+                "id": "uv.tests",
+                "label": "Tests"
+            }
+        ],
+        "configuration": {
+            "title": "UV",
+            "properties": {
+                "uv.path": {
+                    "type": "string",
+                    "default": "uv",
+                    "description": "Path to the uv executable"
+                },
+                "uv.autoSync": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Automatically sync environment when dependencies change"
+                },
+                "uv.showNotifications": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show notifications for uv operations"
+                },
+                "uv.terminal.integrated": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Use integrated terminal for uv commands"
+                },
+                "uv.cache.enabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable uv cache"
+                }
+            }
+        },
+        "keybindings": [
+            {
+                "command": "uv.sync",
+                "key": "ctrl+shift+u",
+                "mac": "cmd+shift+u",
+                "when": "workspaceHasPythonProject"
+            },
+            {
+                "command": "uv.runFile",
+                "key": "ctrl+shift+r",
+                "mac": "cmd+shift+r",
+                "when": "resourceExtname == .py"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts",
+        "test": "node ./out/test/runTest.js",
+        "package": "vsce package",
+        "publish": "vsce publish"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.85.0",
+        "@types/node": "18.x",
+        "@typescript-eslint/eslint-plugin": "^6.0.0",
+        "@typescript-eslint/parser": "^6.0.0",
+        "eslint": "^8.0.0",
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "node-fetch": "^3.3.0"
+    }
+}
