@@ -1,6 +1,6 @@
-# UV - Python Package Manager Extension for VS Code
+# UV - Python Package Manager Extension
 
-An Elegant, and robust VS Code extension for [uv](https://github.com/astral-sh/uv) — the extremely fast Python package manager.
+An Elegant, and robust universal extension for [uv](https://github.com/astral-sh/uv) — the extremely fast Python package manager. Compatible with VS Code, Cursor, Windsurf, and other VS Code-compatible editors.
 
 ---
 
@@ -89,8 +89,12 @@ An Elegant, and robust VS Code extension for [uv](https://github.com/astral-sh/u
 ## 🚀 Installation
 
 1. Install UV from [https://github.com/astral-sh/uv](https://github.com/astral-sh/uv)
-2. Install this extension from the VS Code marketplace
-3. Restart VS Code
+2. Install this extension from your editor's marketplace:
+   - **VS Code**: VS Code Marketplace
+   - **Cursor**: Cursor Extension Marketplace
+   - **Windsurf**: Windsurf Extension Marketplace
+   - **Other VS Code-compatible editors**: Use the `.vsix` file from releases
+3. Restart your editor
 
 ---
 
@@ -98,9 +102,9 @@ An Elegant, and robust VS Code extension for [uv](https://github.com/astral-sh/u
 
 ### 🎯 Quick Start
 
-- **Initialize a Project**: `Cmd+Shift+P` → "UV: Initialize Project"
+- **Initialize a Project**: `Cmd+Shift+P` (or `Ctrl+Shift+P` on Windows/Linux) → "UV: Initialize Project"
 - **Manage Dependencies**: Click the dependencies count in status bar or use "UV: Manage Dependencies"
-- **Sync Environment**: Click the UV status bar item or use `Cmd+Shift+U`
+- **Sync Environment**: Click the UV status bar item or use `Cmd+Shift+U` (or `Ctrl+Shift+U` on Windows/Linux)
 
 ### 📊 Status Bar Information
 
@@ -142,10 +146,10 @@ Settings (in `settings.json` or VS Code UI):
 
 ## ⌨️ Commands & Shortcuts
 
-- `Cmd+Shift+U` — Sync environment
-- `Cmd+Shift+R` — Run current Python file with UV
+- `Cmd+Shift+U` (macOS) / `Ctrl+Shift+U` (Windows/Linux) — Sync environment
+- `Cmd+Shift+R` (macOS) / `Ctrl+Shift+R` (Windows/Linux) — Run current Python file with UV
 
-**Command Palette**: All UV features are available via the Command Palette (`Cmd+Shift+P`), including:
+**Command Palette**: All UV features are available via the Command Palette (`Cmd+Shift+P` on macOS or `Ctrl+Shift+P` on Windows/Linux), including:
 - Project init, dependency management, sync, lock, run, venv, python version, pip, build, publish, cache, version, export, tool, self-management, help, test management, HTTP server, and more.
 
 ---
@@ -160,7 +164,7 @@ Settings (in `settings.json` or VS Code UI):
 
 ## 🛠️ Development
 
-- Clone, `npm install`, `npm run compile`, F5 to launch Extension Development Host.
+- Clone, `npm install`, `npm run compile`, F5 to launch Extension Development Host in VS Code, Cursor, or other compatible editors.
 
 ---
 
@@ -185,3 +189,16 @@ MIT
 ---
 
 **Made with ❤️ for the Python community**
+
+---
+
+## 🔧 Editor Compatibility
+
+This extension is designed to work seamlessly across multiple editors:
+
+- ✅ **VS Code** - Full compatibility
+- ✅ **Cursor** - Full compatibility  
+- ✅ **Windsurf** - Full compatibility
+- ✅ **Other VS Code-compatible editors** - Should work with any editor that supports VS Code extensions
+
+The extension uses standard VS Code APIs and should work out of the box in any editor that supports the VS Code extension protocol.
