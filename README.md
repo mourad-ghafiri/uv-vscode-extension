@@ -6,37 +6,55 @@ A powerful, elegant VS Code extension for [UV](https://github.com/astral-sh/uv) 
 
 ## 📋 Changelog
 
+### v0.3.0 (2025-12-18)
+
+**Added:**
+- **Project Wizard**: 15 project templates across 7 categories
+  - Empty Project, Web API (FastAPI, Flask, Django), CLI (Typer, Click)
+  - Data Science (Jupyter, Analysis), AI/ML (LangChain, PyTorch, Scikit-Learn)
+  - Automation (Scrapy, Playwright), Desktop GUI (Tkinter, PyQt6)
+- Dynamic Python version in templates (uses selected version)
+- Post-install instructions for each template
+
+**Changed:**
+- Simplified dependency management UI (removed redundant prompts)
+- Simplified package details page (View on PyPI only)
+- Python version management no longer re-prompts after selection
+
+**Fixed:**
+- Fixed `uv run` errors with hatchling build system in templates
+- Fixed recursive prompts in Python version management
+
+---
+
 ### v0.2.0 (2025-12-18)
 
 **Added:**
-- UV installation prompt on activation - prompts to install UV if not found
+- UV installation prompt on activation
 - Python version selection during project initialization
-- Real package details from PyPI API (author, license, dependencies, versions)
+- Real package details from PyPI API
 
 **Changed:**
-- Simplified project initialization - uses standard `uv init` (creates main.py, .gitignore, pyproject.toml, README.md, .python-version)
+- Simplified project initialization with `uv init`
 - Enhanced package details UI with VS Code theme colors
 
 **Fixed:**
 - Fixed bug where a "list" folder was incorrectly created
 
-**Removed:**
-- Complex project templates (FastAPI, Flask, etc.) in favor of simple init
-
 ---
 
 ## ✨ Features
 
-### 🚀 Project Initialization
-- **Simple Setup**: Run `UV: Initialize Project` to create a new Python project
-- **Python Version Selection**: Choose any Python version during setup (auto-installs if needed)
-- **Standard Structure**: Creates `main.py`, `.gitignore`, `pyproject.toml`, and `.venv`
-- **UV Installation Check**: Prompts to install UV if not found on your system
+### 🚀 Project Wizard
+- **15 Templates**: Choose from Empty, FastAPI, Flask, Django, Typer, Click, Jupyter, Data Analysis, LangChain, PyTorch, Scikit-Learn, Scrapy, Playwright, Tkinter, or PyQt6
+- **4-Step Setup**: Category → Template → Project Name → Python Version
+- **Working Code**: Each template includes ready-to-run code
+- **Dynamic Python Version**: Templates use your selected Python version
 
 ### 📦 Dependency Management
 - **Add/Remove/Update**: Full package management with version selection
 - **Bulk Operations**: Add multiple packages at once
-- **PyPI Integration**: View real package details from PyPI (author, license, dependencies, versions)
+- **PyPI Integration**: View real package details from PyPI
 - **Auto-sync**: Environment syncs automatically after changes
 
 ### 🐍 Python Version Management
@@ -63,7 +81,6 @@ A powerful, elegant VS Code extension for [UV](https://github.com/astral-sh/uv) 
 - **Project Status**: UV project info always visible
 - **Python Version**: Click to manage versions
 - **Dependencies Count**: Click to manage packages
-- **Quick Actions**: Click for common operations
 
 ---
 
@@ -83,19 +100,20 @@ A powerful, elegant VS Code extension for [UV](https://github.com/astral-sh/uv) 
 ## 📖 Quick Start
 
 1. **Create a new project**: `Cmd+Shift+P` → `UV: Initialize Project`
-2. **Select Python version**: Choose from installed or download a new one
-3. **Start coding**: Your project is ready with `main.py` and `.venv`
+2. **Select category**: Choose project type (Web API, CLI, etc.)
+3. **Select template**: Pick a specific framework
+4. **Choose Python version**: Select or download a version
+5. **Start coding**: Project is ready with working code
 
 ### Common Commands
 
 | Command | Description |
 |---------|-------------|
-| `UV: Initialize Project` | Create a new Python project |
+| `UV: Initialize Project` | Create project with template wizard |
 | `UV: Manage Dependencies` | Add, remove, update packages |
 | `UV: Manage Python Versions` | Install, switch Python versions |
 | `UV: Sync Environment` | Sync dependencies |
 | `UV: Run Current File` | Run active Python file |
-| `UV: Manage Tests` | Run and configure tests |
 
 ### Keyboard Shortcuts
 

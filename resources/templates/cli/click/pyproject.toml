@@ -1,0 +1,14 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A CLI application built with Click"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]

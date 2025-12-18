@@ -1,0 +1,15 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A browser automation project"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "playwright>=1.41.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-playwright>=0.4.0",
+]

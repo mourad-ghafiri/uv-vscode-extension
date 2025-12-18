@@ -1,0 +1,16 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A LangChain application"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "langchain>=0.1.0",
+    "langchain-openai>=0.0.5",
+    "python-dotenv>=1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
