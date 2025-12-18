@@ -1222,22 +1222,86 @@ export class UVCommands {
     }
 
     private async getDetailedDependencyInfo(packageName: string): Promise<any> {
-        // This would typically query PyPI API or use UV's internal data
-        // For now, return mock data
-        return {
-            name: packageName,
-            version: '1.0.0',
-            description: `Detailed information about ${packageName}`,
-            homepage: `https://pypi.org/project/${packageName}/`,
-            author: 'Unknown',
-            license: 'MIT',
-            requires: ['python>=3.7'],
-            classifiers: ['Development Status :: 5 - Production/Stable'],
-            lastUpdated: new Date().toISOString()
-        };
+        try {
+            // Fetch real package data from PyPI API
+            const response = await fetch(`https://pypi.org/pypi/${packageName}/json`);
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch package info: ${response.status}`);
+            }
+
+            const data: any = await response.json();
+            const info = data.info;
+            const releases = Object.keys(data.releases);
+            const latestRelease = data.releases[info.version];
+
+            // Calculate last updated from release upload time
+            let lastUpdated = new Date().toISOString();
+            if (latestRelease && latestRelease.length > 0) {
+                lastUpdated = latestRelease[0].upload_time_iso_8601 || latestRelease[0].upload_time;
+            }
+
+            // Get dependencies from requires_dist
+            const dependencies = info.requires_dist || [];
+
+            return {
+                name: info.name,
+                version: info.version,
+                description: info.summary || info.description?.substring(0, 500) || 'No description available',
+                homepage: info.home_page || info.project_url || `https://pypi.org/project/${packageName}/`,
+                author: info.author || info.maintainer || 'Unknown',
+                authorEmail: info.author_email || info.maintainer_email || '',
+                license: info.license || 'Not specified',
+                requires: info.requires_python ? [info.requires_python] : ['Any Python version'],
+                classifiers: info.classifiers || [],
+                lastUpdated: lastUpdated,
+                keywords: info.keywords || '',
+                projectUrls: info.project_urls || {},
+                dependencies: dependencies.slice(0, 20), // Limit to first 20 deps
+                totalDownloads: 'N/A', // PyPI doesn't include downloads in this endpoint
+                availableVersions: releases.slice(-10).reverse() // Last 10 versions
+            };
+        } catch (error) {
+            // Fallback to basic info if PyPI API fails
+            console.error(`Failed to fetch PyPI data for ${packageName}:`, error);
+            return {
+                name: packageName,
+                version: 'Unknown',
+                description: `Unable to fetch details for ${packageName}. Check your internet connection.`,
+                homepage: `https://pypi.org/project/${packageName}/`,
+                author: 'Unknown',
+                authorEmail: '',
+                license: 'Unknown',
+                requires: ['Unknown'],
+                classifiers: [],
+                lastUpdated: new Date().toISOString(),
+                keywords: '',
+                projectUrls: {},
+                dependencies: [],
+                totalDownloads: 'N/A',
+                availableVersions: []
+            };
+        }
     }
 
     private getDependencyDetailsHtml(depInfo: any): string {
+        // Generate project URLs HTML
+        const projectUrlsHtml = depInfo.projectUrls && Object.keys(depInfo.projectUrls).length > 0
+            ? Object.entries(depInfo.projectUrls).map(([name, url]) =>
+                `<a href="${url}" class="link">${name}</a>`
+            ).join(' | ')
+            : `<a href="${depInfo.homepage}" class="link">Homepage</a>`;
+
+        // Generate dependencies HTML
+        const depsHtml = depInfo.dependencies && depInfo.dependencies.length > 0
+            ? depInfo.dependencies.map((dep: string) => `<span class="dep-tag">${dep.split(';')[0].trim()}</span>`).join('')
+            : '<span class="no-deps">No dependencies</span>';
+
+        // Generate versions HTML
+        const versionsHtml = depInfo.availableVersions && depInfo.availableVersions.length > 0
+            ? depInfo.availableVersions.map((v: string) => `<span class="version-tag">${v}</span>`).join('')
+            : '';
+
         return `
             <!DOCTYPE html>
             <html lang="en">
@@ -1246,30 +1310,124 @@ export class UVCommands {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${depInfo.name}</title>
                 <style>
-                    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; }
-                    .header { border-bottom: 1px solid #e1e4e8; padding-bottom: 10px; margin-bottom: 20px; }
-                    .title { font-size: 24px; font-weight: bold; margin: 0; }
-                    .version { color: #586069; font-size: 14px; }
-                    .description { margin: 20px 0; line-height: 1.6; }
+                    body { 
+                        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                        padding: 20px; 
+                        max-width: 900px;
+                        margin: 0 auto;
+                        color: var(--vscode-foreground);
+                        background: var(--vscode-editor-background);
+                    }
+                    .header { 
+                        border-bottom: 1px solid var(--vscode-panel-border); 
+                        padding-bottom: 15px; 
+                        margin-bottom: 20px; 
+                    }
+                    .title { 
+                        font-size: 28px; 
+                        font-weight: bold; 
+                        margin: 0 0 8px 0; 
+                        color: var(--vscode-foreground);
+                    }
+                    .version { 
+                        color: var(--vscode-descriptionForeground); 
+                        font-size: 16px;
+                        display: inline-block;
+                        background: var(--vscode-badge-background);
+                        color: var(--vscode-badge-foreground);
+                        padding: 2px 8px;
+                        border-radius: 4px;
+                    }
+                    .description { 
+                        margin: 20px 0; 
+                        line-height: 1.6; 
+                        font-size: 15px;
+                        color: var(--vscode-foreground);
+                    }
                     .actions { margin: 20px 0; }
-                    .btn { padding: 8px 16px; margin-right: 10px; border: none; border-radius: 6px; cursor: pointer; }
-                    .btn-primary { background: #0366d6; color: white; }
-                    .btn-danger { background: #d73a49; color: white; }
-                    .btn-secondary { background: #f1f3f4; color: #24292e; }
-                    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
-                    .info-item { padding: 10px; background: #f6f8fa; border-radius: 6px; }
-                    .info-label { font-weight: bold; color: #24292e; }
-                    .info-value { color: #586069; margin-top: 5px; }
+                    .btn { 
+                        padding: 8px 16px; 
+                        margin-right: 10px; 
+                        margin-bottom: 8px;
+                        border: none; 
+                        border-radius: 4px; 
+                        cursor: pointer; 
+                        font-size: 13px;
+                    }
+                    .btn-primary { 
+                        background: var(--vscode-button-background); 
+                        color: var(--vscode-button-foreground); 
+                    }
+                    .btn-primary:hover { background: var(--vscode-button-hoverBackground); }
+                    .btn-danger { 
+                        background: var(--vscode-inputValidation-errorBackground); 
+                        color: var(--vscode-inputValidation-errorForeground); 
+                    }
+                    .btn-secondary { 
+                        background: var(--vscode-button-secondaryBackground); 
+                        color: var(--vscode-button-secondaryForeground); 
+                    }
+                    .section { margin: 25px 0; }
+                    .section-title { 
+                        font-size: 16px; 
+                        font-weight: 600; 
+                        margin-bottom: 12px;
+                        color: var(--vscode-foreground);
+                    }
+                    .info-grid { 
+                        display: grid; 
+                        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+                        gap: 15px; 
+                    }
+                    .info-item { 
+                        padding: 12px; 
+                        background: var(--vscode-editor-inactiveSelectionBackground); 
+                        border-radius: 6px; 
+                    }
+                    .info-label { 
+                        font-weight: 600; 
+                        color: var(--vscode-foreground); 
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    .info-value { 
+                        color: var(--vscode-descriptionForeground); 
+                        margin-top: 4px; 
+                        font-size: 14px;
+                    }
+                    .link { 
+                        color: var(--vscode-textLink-foreground); 
+                        text-decoration: none; 
+                    }
+                    .link:hover { text-decoration: underline; }
+                    .dep-tag, .version-tag {
+                        display: inline-block;
+                        padding: 3px 8px;
+                        margin: 3px;
+                        background: var(--vscode-badge-background);
+                        color: var(--vscode-badge-foreground);
+                        border-radius: 4px;
+                        font-size: 12px;
+                        font-family: monospace;
+                    }
+                    .version-tag { background: var(--vscode-editor-inactiveSelectionBackground); }
+                    .no-deps { color: var(--vscode-descriptionForeground); font-style: italic; }
+                    .urls { margin: 10px 0; }
                 </style>
             </head>
             <body>
                 <div class="header">
                     <h1 class="title">${depInfo.name}</h1>
-                    <div class="version">Version: ${depInfo.version}</div>
+                    <span class="version">v${depInfo.version}</span>
                 </div>
                 
                 <div class="description">
                     ${depInfo.description}
+                </div>
+                
+                <div class="urls">
+                    ${projectUrlsHtml}
                 </div>
                 
                 <div class="actions">
@@ -1278,24 +1436,47 @@ export class UVCommands {
                     <button class="btn btn-danger" onclick="removeDependency()">Remove Package</button>
                 </div>
                 
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">Author</div>
-                        <div class="info-value">${depInfo.author}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">License</div>
-                        <div class="info-value">${depInfo.license}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Python Version</div>
-                        <div class="info-value">${depInfo.requires.join(', ')}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Last Updated</div>
-                        <div class="info-value">${new Date(depInfo.lastUpdated).toLocaleDateString()}</div>
+                <div class="section">
+                    <div class="section-title">Package Information</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Author</div>
+                            <div class="info-value">${depInfo.author}${depInfo.authorEmail ? ` <${depInfo.authorEmail}>` : ''}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">License</div>
+                            <div class="info-value">${depInfo.license}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Python Version</div>
+                            <div class="info-value">${depInfo.requires.join(', ')}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Last Updated</div>
+                            <div class="info-value">${new Date(depInfo.lastUpdated).toLocaleDateString()}</div>
+                        </div>
+                        ${depInfo.keywords ? `
+                        <div class="info-item">
+                            <div class="info-label">Keywords</div>
+                            <div class="info-value">${depInfo.keywords}</div>
+                        </div>
+                        ` : ''}
                     </div>
                 </div>
+                
+                ${depInfo.dependencies && depInfo.dependencies.length > 0 ? `
+                <div class="section">
+                    <div class="section-title">Dependencies (${depInfo.dependencies.length})</div>
+                    <div>${depsHtml}</div>
+                </div>
+                ` : ''}
+                
+                ${depInfo.availableVersions && depInfo.availableVersions.length > 0 ? `
+                <div class="section">
+                    <div class="section-title">Recent Versions</div>
+                    <div>${versionsHtml}</div>
+                </div>
+                ` : ''}
                 
                 <script>
                     const vscode = acquireVsCodeApi();

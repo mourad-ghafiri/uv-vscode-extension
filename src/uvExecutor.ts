@@ -170,34 +170,7 @@ export class UVExecutor {
             }
         }
 
-        // Also try UV's venv list command
-        try {
-            const result = await this.executeCommand(['venv', 'list']);
-            if (result.success) {
-                const uvVenvs = result.output.split('\n')
-                    .filter(line => line.trim() && !line.startsWith('#'))
-                    .map(line => line.trim());
-                for (const venv of uvVenvs) {
-                    const venvPath = path.isAbsolute(venv) ? venv : path.join(workspaceRoot, venv);
-                    let activateScript = '';
-                    if (isWin) {
-                        activateScript = path.join(venvPath, 'Scripts', 'activate');
-                    } else {
-                        activateScript = path.join(venvPath, 'bin', 'activate');
-                    }
-                    try {
-                        await vscode.workspace.fs.stat(vscode.Uri.file(activateScript));
-                        if (!environments.some(e => e.activateScript === activateScript)) {
-                            environments.push({ name: venv, activateScript });
-                        }
-                    } catch {
-                        // Activation script doesn't exist
-                    }
-                }
-            }
-        } catch {
-            // UV venv list failed, use file system detection
-        }
+        // Note: uv venv doesn't have a 'list' subcommand, so we only use file system detection above
 
         return environments;
     }
@@ -232,6 +205,70 @@ export class UVExecutor {
 
             cp.exec(command, (error: cp.ExecException | null, stdout: string, stderr: string) => {
                 resolve(!error);
+            });
+        });
+    }
+
+    async getUVVersion(): Promise<string | null> {
+        return new Promise((resolve) => {
+            const uvPath = this.getUVPath();
+            const command = `${uvPath} --version`;
+
+            cp.exec(command, (error: cp.ExecException | null, stdout: string, stderr: string) => {
+                if (error) {
+                    resolve(null);
+                } else {
+                    // Output is like "uv 0.4.0"
+                    const match = stdout.trim().match(/uv\s+([\d.]+)/);
+                    resolve(match ? match[1] : null);
+                }
+            });
+        });
+    }
+
+    async installUV(): Promise<boolean> {
+        const platform = process.platform;
+
+        return new Promise((resolve) => {
+            vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: 'Installing UV...',
+                cancellable: false
+            }, async (progress) => {
+                progress.report({ increment: 0, message: 'Downloading UV installer...' });
+
+                const terminal = vscode.window.createTerminal({
+                    name: 'UV Installation',
+                    cwd: process.env.HOME || process.env.USERPROFILE
+                });
+
+                terminal.show();
+
+                if (platform === 'win32') {
+                    // Windows: Use PowerShell installer
+                    terminal.sendText('powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"');
+                } else {
+                    // macOS/Linux: Use shell installer
+                    terminal.sendText('curl -LsSf https://astral.sh/uv/install.sh | sh');
+                }
+
+                progress.report({ increment: 50, message: 'Running installer...' });
+
+                // Wait for installation to complete
+                await new Promise(res => setTimeout(res, 5000));
+
+                progress.report({ increment: 100, message: 'Installation complete!' });
+
+                vscode.window.showInformationMessage(
+                    'UV installation initiated. Please restart VS Code after installation completes.',
+                    'Reload Window'
+                ).then(selection => {
+                    if (selection === 'Reload Window') {
+                        vscode.commands.executeCommand('workbench.action.reloadWindow');
+                    }
+                });
+
+                resolve(true);
             });
         });
     }

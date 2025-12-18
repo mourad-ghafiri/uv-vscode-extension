@@ -16,6 +16,9 @@ export function activate(context: vscode.ExtensionContext) {
     const uvCommands = new UVCommands(uvExecutor, statusBar);
     const contextProvider = new UVContextProvider();
 
+    // Check if UV is installed on activation
+    checkAndPromptUVInstallation(uvExecutor);
+
     // Register tree view providers
     const dependenciesProvider = new DependenciesProvider(uvExecutor);
     const environmentsProvider = new EnvironmentsProvider(uvExecutor);
@@ -174,4 +177,20 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
     console.log('UV extension is now deactivated!');
+}
+
+async function checkAndPromptUVInstallation(uvExecutor: UVExecutor): Promise<void> {
+    const isUVInstalled = await uvExecutor.checkUVInstalled();
+
+    if (!isUVInstalled) {
+        const selection = await vscode.window.showWarningMessage(
+            'UV is not installed on your system. UV is required for this extension to work properly.',
+            'Install UV',
+            'Dismiss'
+        );
+
+        if (selection === 'Install UV') {
+            await uvExecutor.installUV();
+        }
+    }
 } 

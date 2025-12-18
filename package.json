@@ -1,8 +1,8 @@
 {
     "name": "uv-vscode-extension",
     "displayName": "UV - Python Package Manager",
-    "description": "Universal extension for uv - the extremely fast Python package manager (VS Code, Cursor, Windsurf compatible)",
-    "version": "0.1.1",
+    "description": "Elegant extension for uv - the extremely fast Python package manager. Manage dependencies, Python versions, virtual environments, and more.",
+    "version": "0.2.0",
     "publisher": "MouradGHAFIRI",
     "license": "MIT",
     "author": {
@@ -15,13 +15,11 @@
     "engines": {
         "vscode": "^1.85.0"
     },
-    "extensionKind": [
-        "workspace",
-        "ui"
-    ],
     "categories": [
         "Programming Languages",
-        "Other"
+        "Other",
+        "Linters",
+        "Formatters"
     ],
     "keywords": [
         "python",
@@ -29,10 +27,8 @@
         "package manager",
         "dependency management",
         "virtual environment",
-        "cursor",
-        "windsurf",
-        "vscode",
-        "universal"
+        "pip",
+        "venv"
     ],
     "icon": "resources/icon.png",
     "galleryBanner": {
