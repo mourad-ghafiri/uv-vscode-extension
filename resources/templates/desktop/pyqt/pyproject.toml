@@ -1,0 +1,15 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A PyQt6 desktop application"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "PyQt6>=6.6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pyinstaller>=6.0.0",
+]

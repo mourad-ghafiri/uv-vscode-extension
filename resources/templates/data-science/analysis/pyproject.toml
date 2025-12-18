@@ -1,0 +1,18 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A data analysis project"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "pandas>=2.1.0",
+    "numpy>=1.26.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "black>=23.0.0",
+]

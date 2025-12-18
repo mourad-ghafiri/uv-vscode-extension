@@ -7,8 +7,8 @@ import * as path from 'path';
 export class UVCommands {
     public templateManager: TemplateManager;
 
-    constructor(private uvExecutor: UVExecutor, private statusBar?: UVStatusBar) {
-        this.templateManager = new TemplateManager(uvExecutor);
+    constructor(private uvExecutor: UVExecutor, private statusBar?: UVStatusBar, extensionPath?: string) {
+        this.templateManager = new TemplateManager(uvExecutor, extensionPath);
     }
 
     async init(): Promise<void> {
@@ -366,9 +366,6 @@ export class UVCommands {
                 vscode.window.showErrorMessage(`Failed to add ${packageName}: ${result.error}`);
             }
         });
-
-        // Return to dependencies management
-        await this.manageDependencies();
     }
 
     private async removeDependency(packageName: string): Promise<void> {
@@ -413,9 +410,6 @@ export class UVCommands {
                 vscode.window.showErrorMessage(`Failed to remove ${packageName}: ${result.error}`);
             }
         });
-
-        // Return to dependencies management
-        await this.manageDependencies();
     }
 
     async sync(): Promise<void> {
@@ -817,7 +811,9 @@ export class UVCommands {
             const ok = await this.uvExecutor.installPythonVersion(selected.id);
             if (ok) {
                 vscode.window.showInformationMessage(`Installed Python ${version}`);
-                await this.python();
+                if (this.statusBar) {
+                    await this.statusBar.updateStatus();
+                }
             } else {
                 vscode.window.showErrorMessage(`Failed to install Python ${version}`);
             }
@@ -836,12 +832,11 @@ export class UVCommands {
             if (action.label.startsWith('Use')) {
                 const ok = await this.uvExecutor.switchProjectPythonVersion(version);
                 if (ok) {
-                    // Update status bar and refresh
+                    vscode.window.showInformationMessage(`Project configured to use Python ${version}`);
+                    // Update status bar
                     if (this.statusBar) {
                         await this.statusBar.updateStatus();
                     }
-                    // Refresh the Python versions list
-                    await this.python();
                 } else {
                     vscode.window.showErrorMessage(`Failed to switch to Python ${version}`);
                 }
@@ -857,7 +852,9 @@ export class UVCommands {
                     const ok = await this.uvExecutor.uninstallPythonVersion(selected.id);
                     if (ok) {
                         vscode.window.showInformationMessage(`Uninstalled Python ${version}`);
-                        await this.python();
+                        if (this.statusBar) {
+                            await this.statusBar.updateStatus();
+                        }
                     } else {
                         vscode.window.showErrorMessage(`Failed to uninstall Python ${version}`);
                     }
@@ -877,7 +874,9 @@ export class UVCommands {
                 const ok = await this.uvExecutor.installPythonVersion(version);
                 if (ok) {
                     vscode.window.showInformationMessage(`Installed Python ${version}`);
-                    await this.python();
+                    if (this.statusBar) {
+                        await this.statusBar.updateStatus();
+                    }
                 } else {
                     vscode.window.showErrorMessage(`Failed to install Python ${version}. It may not be available.`);
                 }
@@ -1208,10 +1207,12 @@ export class UVCommands {
             async message => {
                 switch (message.command) {
                     case 'update':
+                        panel.dispose();
                         await this.updateDependency(dependency.name);
                         break;
                     case 'remove':
-                        await this.remove(dependency);
+                        panel.dispose();
+                        await this.removeDependency(dependency.name);
                         break;
                     case 'openPyPI':
                         vscode.env.openExternal(vscode.Uri.parse(`https://pypi.org/project/${dependency.name}/`));
@@ -1431,9 +1432,7 @@ export class UVCommands {
                 </div>
                 
                 <div class="actions">
-                    <button class="btn btn-primary" onclick="updateDependency()">Update Package</button>
-                    <button class="btn btn-secondary" onclick="openPyPI()">View on PyPI</button>
-                    <button class="btn btn-danger" onclick="removeDependency()">Remove Package</button>
+                    <button class="btn btn-primary" onclick="openPyPI()">View on PyPI</button>
                 </div>
                 
                 <div class="section">
@@ -1442,10 +1441,6 @@ export class UVCommands {
                         <div class="info-item">
                             <div class="info-label">Author</div>
                             <div class="info-value">${depInfo.author}${depInfo.authorEmail ? ` <${depInfo.authorEmail}>` : ''}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label">License</div>
-                            <div class="info-value">${depInfo.license}</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Python Version</div>

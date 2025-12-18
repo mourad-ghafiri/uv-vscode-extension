@@ -1,0 +1,15 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A Flask application"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "flask>=3.0.0",
+    "gunicorn>=21.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]

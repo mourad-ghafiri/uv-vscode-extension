@@ -1,0 +1,16 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A FastAPI application"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "httpx>=0.26.0",
+]

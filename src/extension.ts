@@ -13,7 +13,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     const uvExecutor = new UVExecutor();
     const statusBar = new UVStatusBar();
-    const uvCommands = new UVCommands(uvExecutor, statusBar);
+    const uvCommands = new UVCommands(uvExecutor, statusBar, context.extensionPath);
     const contextProvider = new UVContextProvider();
 
     // Check if UV is installed on activation

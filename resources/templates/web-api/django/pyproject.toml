@@ -1,0 +1,17 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A Django REST API application"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "django>=5.0.0",
+    "djangorestframework>=3.14.0",
+    "django-cors-headers>=4.3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-django>=4.7.0",
+]

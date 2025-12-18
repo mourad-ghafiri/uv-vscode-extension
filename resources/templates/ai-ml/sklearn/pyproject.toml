@@ -1,0 +1,18 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A Scikit-learn ML project"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "scikit-learn>=1.4.0",
+    "numpy>=1.26.0",
+    "pandas>=2.1.0",
+    "xgboost>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+    "matplotlib>=3.8.0",
+]

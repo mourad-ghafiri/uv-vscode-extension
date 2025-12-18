@@ -1,0 +1,16 @@
+[project]
+name = "{{PROJECT_NAME}}"
+version = "0.1.0"
+description = "A web scraping project"
+readme = "README.md"
+requires-python = ">={{PYTHON_VERSION}}"
+dependencies = [
+    "scrapy>=2.11.0",
+    "beautifulsoup4>=4.12.0",
+    "requests>=2.31.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0.0",
+]
