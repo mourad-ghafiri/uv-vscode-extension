@@ -47,7 +47,9 @@ export class UVExecutor {
 
             const command = `${uvPath} ${args.join(' ')}`;
             const options: cp.ExecOptions = {
-                cwd: workspaceRoot
+                cwd: workspaceRoot,
+                timeout: 60000,  // 60 second timeout to prevent hanging
+                maxBuffer: 10 * 1024 * 1024  // 10MB buffer for large outputs
             };
 
             cp.exec(command, options, (error: cp.ExecException | null, stdout: string, stderr: string) => {

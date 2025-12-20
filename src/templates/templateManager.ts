@@ -78,7 +78,7 @@ export class TemplateManager {
         const items: vscode.QuickPickItem[] = TEMPLATE_CATEGORIES.map(cat => ({
             label: `${cat.icon} ${cat.name}`,
             description: cat.description,
-            detail: cat.id === 'empty' ? 'Recommended for beginners' : undefined,
+            detail: cat.id,  // Store category ID for reliable lookup
         }));
 
         const pick = await vscode.window.showQuickPick(items, {
@@ -87,10 +87,10 @@ export class TemplateManager {
             ignoreFocusOut: true,
         });
 
-        if (!pick) return undefined;
+        if (!pick || !pick.detail) return undefined;
 
-        const catName = pick.label.substring(2).trim(); // Remove emoji
-        return TEMPLATE_CATEGORIES.find(c => c.name === catName);
+        // Use the category ID stored in detail for reliable matching
+        return TEMPLATE_CATEGORIES.find(c => c.id === pick.detail);
     }
 
     private async selectTemplate(category: TemplateCategory): Promise<ProjectTemplate | undefined> {
@@ -194,6 +194,20 @@ export class TemplateManager {
         return { id: selected.id, version: selected.version };
     }
 
+    /**
+     * Sanitize project name to be PEP 508 compliant.
+     * Replaces spaces with hyphens, removes invalid chars, and lowercases.
+     */
+    private sanitizeProjectName(name: string): string {
+        return name
+            .toLowerCase()
+            .replace(/\s+/g, '-')           // Replace spaces with hyphens
+            .replace(/[^a-z0-9_-]/g, '')    // Remove invalid characters
+            .replace(/^[^a-z]+/, '')        // Must start with a letter
+            .replace(/-+/g, '-')            // Collapse multiple hyphens
+            || 'my-project';                // Fallback if empty
+    }
+
     private async createProjectFromTemplate(
         template: ProjectTemplate,
         projectName: string | undefined,
@@ -209,69 +223,71 @@ export class TemplateManager {
         const projectPath = projectName && projectName.trim() !== ''
             ? path.join(workspaceRoot, projectName)
             : workspaceRoot;
-        const displayName = projectName && projectName.trim() !== '' ? projectName : currentDirName;
+        const rawDisplayName = projectName && projectName.trim() !== '' ? projectName : currentDirName;
+        // Sanitize the project name for pyproject.toml (handles spaces, special chars)
+        const sanitizedName = this.sanitizeProjectName(rawDisplayName);
 
         await vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: `Creating ${template.name} project...`,
             cancellable: false
         }, async (progress) => {
-            try {
-                // Step 1: Create project directory
-                progress.report({ increment: 5, message: 'Creating project directory...' });
-                if (projectPath !== workspaceRoot && !fs.existsSync(projectPath)) {
-                    fs.mkdirSync(projectPath, { recursive: true });
-                }
-
-                // Step 2: Copy template files
-                progress.report({ increment: 20, message: 'Copying template files...' });
-                await this.copyTemplateFiles(template, projectPath, displayName, pythonVersion.version);
-
-                // Step 3: Initialize git if not exists
-                progress.report({ increment: 10, message: 'Initializing git...' });
-                if (!fs.existsSync(path.join(projectPath, '.git'))) {
-                    await this.uvExecutor.executeCommand(['run', 'git', 'init'], projectPath);
-                }
-
-                // Step 4: Set Python version
-                progress.report({ increment: 10, message: 'Setting Python version...' });
-                this.setPythonVersion(projectPath, pythonVersion);
-
-                // Step 5: Create virtual environment
-                progress.report({ increment: 25, message: 'Creating virtual environment...' });
-                const venvResult = await this.uvExecutor.executeCommand(
-                    ['venv', '.venv', '--python', pythonVersion.id],
-                    projectPath
-                );
-                if (!venvResult.success) {
-                    throw new Error(`Failed to create virtual environment: ${venvResult.error}`);
-                }
-
-                // Step 6: Install dependencies
-                progress.report({ increment: 25, message: 'Installing dependencies...' });
-                await this.uvExecutor.executeCommand(['sync'], projectPath);
-
-                progress.report({ increment: 5, message: 'Done!' });
-
-                // Show success message with post-install instructions
-                const message = `Project "${displayName}" created with ${template.name} template!`;
-                const actions = ['Open Folder'];
-                if (template.postInstallMessage) {
-                    actions.push('Show Instructions');
-                }
-
-                const selection = await vscode.window.showInformationMessage(message, ...actions);
-
-                if (selection === 'Open Folder' && projectPath !== workspaceRoot) {
-                    vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectPath));
-                } else if (selection === 'Show Instructions' && template.postInstallMessage) {
-                    vscode.window.showInformationMessage(template.postInstallMessage, { modal: true });
-                }
-
-            } catch (error) {
-                vscode.window.showErrorMessage(`Failed to create project: ${error}`);
+            // Step 1: Create project directory
+            progress.report({ increment: 10, message: 'Creating project directory...' });
+            if (projectPath !== workspaceRoot && !fs.existsSync(projectPath)) {
+                fs.mkdirSync(projectPath, { recursive: true });
             }
+
+            // Step 2: Copy all template files with placeholder replacement
+            progress.report({ increment: 20, message: 'Copying template files...' });
+            await this.copyTemplateFiles(template, projectPath, sanitizedName, pythonVersion.version);
+
+            // Step 3: Set Python version file
+            progress.report({ increment: 10, message: 'Setting Python version...' });
+            this.setPythonVersion(projectPath, pythonVersion);
+
+            // Step 4: Initialize git if not exists
+            progress.report({ increment: 5, message: 'Initializing git...' });
+            if (!fs.existsSync(path.join(projectPath, '.git'))) {
+                await this.uvExecutor.executeCommand(['run', 'git', 'init'], projectPath);
+            }
+
+            // Step 5: Create virtual environment
+            progress.report({ increment: 20, message: 'Creating virtual environment...' });
+            const venvResult = await this.uvExecutor.executeCommand(
+                ['venv', '.venv', '--python', pythonVersion.id],
+                projectPath
+            );
+            if (!venvResult.success) {
+                throw new Error(`Failed to create virtual environment: ${venvResult.error}`);
+            }
+
+            // Step 6: Install dependencies with uv sync
+            progress.report({ increment: 30, message: 'Installing dependencies...' });
+            const syncResult = await this.uvExecutor.executeCommand(['sync'], projectPath);
+            if (!syncResult.success) {
+                throw new Error(`Failed to sync dependencies: ${syncResult.error}`);
+            }
+
+            progress.report({ increment: 5, message: 'Complete!' });
         });
+
+        // Show success message AFTER progress completes (not inside withProgress)
+        const message = `Project "${sanitizedName}" created with ${template.name} template!`;
+        const actions: string[] = ['OK'];
+        if (projectPath !== workspaceRoot) {
+            actions.unshift('Open Folder');
+        }
+        if (template.postInstallMessage) {
+            actions.splice(actions.length - 1, 0, 'Show Instructions');
+        }
+
+        const selection = await vscode.window.showInformationMessage(message, ...actions);
+        if (selection === 'Open Folder') {
+            vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(projectPath));
+        } else if (selection === 'Show Instructions' && template.postInstallMessage) {
+            vscode.window.showInformationMessage(template.postInstallMessage, 'OK');
+        }
     }
 
     private async copyTemplateFiles(
@@ -282,17 +298,28 @@ export class TemplateManager {
     ): Promise<void> {
         const templatePath = path.join(this.extensionPath, 'resources', 'templates', template.resourcePath);
 
+        // Log for debugging
+        const outputChannel = vscode.window.createOutputChannel('UV Templates');
+        outputChannel.appendLine(`Template: ${template.name} (${template.resourcePath})`);
+        outputChannel.appendLine(`Template path: ${templatePath}`);
+        outputChannel.appendLine(`Project name: ${projectName}`);
+        outputChannel.appendLine(`Python version: ${pythonVersion}`);
+        outputChannel.appendLine(`Template exists: ${fs.existsSync(templatePath)}`);
+
         if (!fs.existsSync(templatePath)) {
-            // Fallback: if template folder doesn't exist, use uv init
-            const initResult = await this.uvExecutor.executeCommand(['init'], projectPath);
-            if (!initResult.success) {
-                throw new Error('Template not found and uv init failed');
-            }
-            return;
+            outputChannel.appendLine('ERROR: Template folder not found!');
+            throw new Error(`Template folder not found: ${templatePath}`);
         }
 
-        // Copy all files from template folder
-        this.copyDirectoryRecursive(templatePath, projectPath, projectName, pythonVersion);
+        // List template files for debugging
+        const templateFiles = fs.readdirSync(templatePath);
+        outputChannel.appendLine(`Template files: ${templateFiles.join(', ')}`);
+
+        // Copy ALL files from template folder (including pyproject.toml)
+        // Placeholders {{PROJECT_NAME}} and {{PYTHON_VERSION}} will be replaced
+        outputChannel.appendLine('Copying all template files...');
+        this.copyDirectoryRecursive(templatePath, projectPath, projectName, pythonVersion, []);
+        outputChannel.appendLine('Template files copied.');
 
         // Always ensure .gitignore exists
         const gitignorePath = path.join(projectPath, '.gitignore');
@@ -300,21 +327,8 @@ export class TemplateManager {
             const emptyGitignore = path.join(this.extensionPath, 'resources', 'templates', 'empty', '.gitignore');
             if (fs.existsSync(emptyGitignore)) {
                 fs.copyFileSync(emptyGitignore, gitignorePath);
+                outputChannel.appendLine('Copied default .gitignore.');
             }
-        }
-
-        // Create pyproject.toml if not copied (for empty template)
-        const pyprojectPath = path.join(projectPath, 'pyproject.toml');
-        if (!fs.existsSync(pyprojectPath)) {
-            const pyprojectContent = `[project]
-name = "${projectName}"
-version = "0.1.0"
-description = ""
-readme = "README.md"
-requires-python = ">=3.10"
-dependencies = []
-`;
-            fs.writeFileSync(pyprojectPath, pyprojectContent);
         }
 
         // Create README.md if not exists
@@ -322,9 +336,39 @@ dependencies = []
         if (!fs.existsSync(readmePath)) {
             fs.writeFileSync(readmePath, `# ${projectName}\n\nA Python project created with UV.\n`);
         }
+
+        outputChannel.appendLine('Template setup complete!');
     }
 
-    private copyDirectoryRecursive(source: string, target: string, projectName: string, pythonVersion: string): void {
+    /**
+     * Extract dependencies from a pyproject.toml content string.
+     * Parses the dependencies array from [project] section.
+     * Returns package names only (strips version specifiers to avoid shell issues).
+     */
+    private extractDependencies(pyprojectContent: string): string[] {
+        const dependencies: string[] = [];
+
+        // Match the dependencies array in pyproject.toml
+        // This handles multi-line arrays like: dependencies = [\n    "pkg>=1.0",\n]
+        const depsMatch = pyprojectContent.match(/dependencies\s*=\s*\[([\s\S]*?)\]/);
+        if (depsMatch) {
+            const depsBlock = depsMatch[1];
+            // Extract each quoted dependency
+            const depMatches = depsBlock.matchAll(/"([^"]+)"/g);
+            for (const match of depMatches) {
+                // Strip version specifiers to avoid shell redirection issues
+                // e.g., "ttkbootstrap>=1.10.0" -> "ttkbootstrap"
+                const packageName = match[1].split(/[<>=!~\[\]]/)[0].trim();
+                if (packageName && !dependencies.includes(packageName)) {
+                    dependencies.push(packageName);
+                }
+            }
+        }
+
+        return dependencies;
+    }
+
+    private copyDirectoryRecursive(source: string, target: string, projectName: string, pythonVersion: string, excludeFiles: string[] = []): void {
         if (!fs.existsSync(target)) {
             fs.mkdirSync(target, { recursive: true });
         }
@@ -332,11 +376,16 @@ dependencies = []
         const entries = fs.readdirSync(source, { withFileTypes: true });
 
         for (const entry of entries) {
+            // Skip excluded files
+            if (excludeFiles.includes(entry.name)) {
+                continue;
+            }
+
             const sourcePath = path.join(source, entry.name);
             const targetPath = path.join(target, entry.name);
 
             if (entry.isDirectory()) {
-                this.copyDirectoryRecursive(sourcePath, targetPath, projectName, pythonVersion);
+                this.copyDirectoryRecursive(sourcePath, targetPath, projectName, pythonVersion, excludeFiles);
             } else {
                 // Read file and replace placeholders
                 let content = fs.readFileSync(sourcePath, 'utf8');
@@ -351,6 +400,7 @@ dependencies = []
 
     private setPythonVersion(projectPath: string, pythonVersion: { id: string; version: string }): void {
         const pythonVersionPath = path.join(projectPath, '.python-version');
-        fs.writeFileSync(pythonVersionPath, pythonVersion.id + '\n');
+        // Write just the version number (e.g., "3.14.2"), not the full id (e.g., "cpython-3.14.2-macos-aarch64-none")
+        fs.writeFileSync(pythonVersionPath, pythonVersion.version + '\n');
     }
 }
