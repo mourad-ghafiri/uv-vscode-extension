@@ -6,6 +6,13 @@ A powerful, elegant VS Code extension for [UV](https://github.com/astral-sh/uv) 
 
 ## 📋 Changelog
 
+### v0.4.0 (2025-12-20)
+
+**Added:**
+- "Run with UV" option in the Play button dropdown menu for Python files
+
+---
+
 ### v0.3.2 (2025-12-20)
 
 **Fixed:**
