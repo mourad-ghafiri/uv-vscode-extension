@@ -262,11 +262,13 @@ export class UVExecutor {
                 progress.report({ increment: 100, message: 'Installation complete!' });
 
                 vscode.window.showInformationMessage(
-                    'UV installation initiated. Please restart VS Code after installation completes.',
-                    'Reload Window'
+                    'UV installed successfully! Please restart VS Code to apply PATH changes.',
+                    'Restart Now',
+                    'Later'
                 ).then(selection => {
-                    if (selection === 'Reload Window') {
-                        vscode.commands.executeCommand('workbench.action.reloadWindow');
+                    if (selection === 'Restart Now') {
+                        // Close and restart VS Code to pick up new PATH
+                        vscode.commands.executeCommand('workbench.action.quit');
                     }
                 });
 
