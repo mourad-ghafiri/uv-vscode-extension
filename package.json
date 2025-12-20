@@ -2,7 +2,7 @@
     "name": "uv-vscode-extension",
     "displayName": "UV - Python Package Manager",
     "description": "Elegant extension for uv - the extremely fast Python package manager. Manage dependencies, Python versions, virtual environments, and more.",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "publisher": "MouradGHAFIRI",
     "license": "MIT",
     "author": {

@@ -6,6 +6,21 @@ A powerful, elegant VS Code extension for [UV](https://github.com/astral-sh/uv) 
 
 ## 📋 Changelog
 
+### v0.3.1 (2025-12-20)
+
+**Fixed:**
+- Fixed project name sanitization for folders with spaces (e.g., "My Project" → "my-project")
+- Fixed `.python-version` file format (now writes "3.14.2" instead of full ID)
+- Fixed GUI templates (Tkinter, PyQt6) not being created correctly
+- Fixed shell redirection issue when adding packages with version specifiers
+- Fixed empty project template missing `pyproject.toml`
+- Fixed progress notification staying stuck after project creation
+- Fixed package install hanging indefinitely for invalid packages (added 60s timeout)
+- Fixed category selection failing for multi-codepoint emojis (Desktop GUI)
+- Fixed `.vscodeignore` excluding template `.gitignore` files
+
+---
+
 ### v0.3.0 (2025-12-18)
 
 **Added:**
@@ -82,18 +97,6 @@ A powerful, elegant VS Code extension for [UV](https://github.com/astral-sh/uv) 
 - **Python Version**: Click to manage versions
 - **Dependencies Count**: Click to manage packages
 
----
-
-## 🚀 Installation
-
-1. **Install UV** (if not already):
-   ```bash
-   curl -LsSf https://astral.sh/uv/install.sh | sh
-   ```
-
-2. **Install this extension** from the VS Code marketplace
-
-3. **Restart VS Code**
 
 ---
 
@@ -119,19 +122,6 @@ A powerful, elegant VS Code extension for [UV](https://github.com/astral-sh/uv) 
 
 - `Cmd+Shift+U` — Sync environment
 - `Cmd+Shift+R` — Run current Python file
-
----
-
-## ⚙️ Configuration
-
-```json
-{
-  "uv.path": "uv",
-  "uv.autoSync": true,
-  "uv.showNotifications": true,
-  "uv.terminal.integrated": true
-}
-```
 
 ---
 
