@@ -6,6 +6,14 @@ A powerful, elegant VS Code extension for [UV](https://github.com/astral-sh/uv) 
 
 ## 📋 Changelog
 
+### v0.3.2 (2025-12-20)
+
+**Fixed:**
+- Fixed UV not detected after installation until full VS Code restart
+- Changed "Reload Window" to "Restart VS Code" after UV installation to properly refresh PATH
+
+---
+
 ### v0.3.1 (2025-12-20)
 
 **Fixed:**
