@@ -6,6 +6,13 @@ A powerful, elegant VS Code extension for [UV](https://github.com/astral-sh/uv) 
 
 ## 📋 Changelog
 
+### v0.4.1 (2025-12-20)
+
+**Fixed:**
+- Fixed `.python-version` writing full toolchain ID instead of version number when switching Python versions
+
+---
+
 ### v0.4.0 (2025-12-20)
 
 **Added:**

@@ -797,9 +797,9 @@ export class UVExecutor {
                         throw new Error(`No installed Python toolchain found for version ${version}. Please install it first.`);
                     }
 
-                    // Step 2: Update .python-version file with the toolchain ID
+                    // Step 2: Update .python-version file with the version number (not full toolchain ID)
                     progress.report({ increment: 20, message: 'Updating project configuration...' });
-                    await this.updatePythonVersionFile(workspaceRoot, toolchainId);
+                    await this.updatePythonVersionFile(workspaceRoot, version);
                     await this.updatePyprojectToml(workspaceRoot, version);
 
                     // Step 3: Remove existing virtual environment
