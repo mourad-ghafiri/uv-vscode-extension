@@ -1,6 +1,6 @@
 # UV - Python Package Manager Extension
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://marketplace.visualstudio.com/items?itemName=MouradGHAFIRI.uv-vscode-extension)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://marketplace.visualstudio.com/items?itemName=MouradGHAFIRI.uv-vscode-extension)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 > A powerful VS Code extension for [UV](https://github.com/astral-sh/uv) — the extremely fast Python package manager.
@@ -10,6 +10,14 @@
 ---
 
 ## 📋 Changelog
+
+### v1.1.0 (2026-01-23)
+
+**Added:**
+- New setting `uv.statusBar.showHttpServer` to show/hide the HTTP server status bar item (default: `true`)
+- Real-time configuration change detection — toggling the setting applies immediately without restart
+
+---
 
 ### v1.0.0 (2025-12-20) 🎉
 

@@ -16,6 +16,7 @@ export class UVStatusBar {
     private debounceTimer: NodeJS.Timeout | undefined;
     private debounceDelay = 300;
     private httpServerBarClickDisposable: vscode.Disposable | undefined;
+    private configChangeDisposable: vscode.Disposable | undefined;
 
     constructor() {
         this.uvExecutor = new UVExecutor();
@@ -40,12 +41,17 @@ export class UVStatusBar {
 
         this.httpServerManager = new HTTPServerManager();
         this.httpServerBar.command = undefined;
-        this.httpServerBar.show();
         this.httpServerBar.tooltip = 'Start a Python HTTP server (Click to start)';
-        this.httpServerBar.show();
         this.updateHttpServerBar();
         this.httpServerManager.onStatusChanged(() => this.updateHttpServerBar());
         this.httpServerBarClickHandler();
+
+        // Listen for configuration changes to update HTTP server bar visibility
+        this.configChangeDisposable = vscode.workspace.onDidChangeConfiguration(e => {
+            if (e.affectsConfiguration('uv.statusBar.showHttpServer')) {
+                this.updateHttpServerBarVisibility();
+            }
+        });
 
         // Initialize with a default state and then update
         this.statusBarItem.text = '$(plus) UV';
@@ -270,7 +276,17 @@ export class UVStatusBar {
             this.httpServerBar.text = '$(globe) Start HTTP Server';
             this.httpServerBar.tooltip = 'Start a Python HTTP server (Click to start)';
         }
-        this.httpServerBar.show();
+        this.updateHttpServerBarVisibility();
+    }
+
+    private updateHttpServerBarVisibility(): void {
+        const config = vscode.workspace.getConfiguration('uv');
+        const showHttpServer = config.get<boolean>('statusBar.showHttpServer', true);
+        if (showHttpServer) {
+            this.httpServerBar.show();
+        } else {
+            this.httpServerBar.hide();
+        }
     }
 
     public getHttpServerManager(): HTTPServerManager {
@@ -279,7 +295,6 @@ export class UVStatusBar {
 
     private httpServerBarClickHandler(): void {
         this.httpServerBar.command = undefined;
-        this.httpServerBar.show();
         this.httpServerBar.tooltip = this.httpServerBar.tooltip;
         this.httpServerBarClickDisposable?.dispose();
         this.httpServerBarClickDisposable = vscode.commands.registerCommand('uv._internalHttpServerBarClick', async () => {
@@ -313,6 +328,8 @@ export class UVStatusBar {
         this.dependenciesBar.dispose();
         this.venvBar.dispose();
         this.httpServerBar.dispose();
+        this.httpServerBarClickDisposable?.dispose();
+        this.configChangeDisposable?.dispose();
     }
 }
 
